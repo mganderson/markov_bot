@@ -3,8 +3,13 @@
 import random
 import sys
 
-print "Number of arguments: ", len(sys.argv), ' arguments'
-print "Arguments: ", str(sys.argv)
+#print "Number of arguments: ", len(sys.argv), ' arguments'
+#print "Arguments: ", str(sys.argv)
+
+if len(sys.argv) != 2:
+    print "Error.  Must provide one command line argument (text file)"
+    sys.exit()
+
 
 token_list = []
 
