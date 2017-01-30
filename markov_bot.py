@@ -48,7 +48,7 @@ def generate_output(markov_dict, lower_bound, upper_bound):
     Generates markov-chain output for a random number of sentences
     between an upper and lower bound passed as parameters
     """
-    #generate 3-6 sentences
+    output_text = ""
     i = random.randint(lower_bound, upper_bound)
     while i > 0:
         #Get random key from dictionary that begins with a capital letter
@@ -64,23 +64,50 @@ def generate_output(markov_dict, lower_bound, upper_bound):
 
         end_of_sentence = False
 
-        print capital_case_key,
+        output_text += capital_case_key + " "
         current_token = random.sample(markov_dict[capital_case_key], 1)[0]
         while not end_of_sentence:
-            print current_token,
+            output_text += current_token + " "
             if current_token[-1] in [".", "!", "?"]:
                 end_of_sentence = True
                 #one-third chance of linebreak
                 if random.randint(0, 99) < 33:
-                    print "\n\n"
+                    output_text += "\n\n"
                     #pass
             else:
                 old_token = current_token
                 current_token = random.sample(markov_dict[old_token], 1)[0]
         i -= 1
+    return output_text
 
+def get_relevant_post_IDs(keywords, max_posts_to_search):
+    relevant_post_IDs = []
+    reddit = praw.Reddit('bot1')
+    subreddit = reddit.subreddit('NJTech')
+
+    for post in subreddit.hot(limit=max_posts_to_search):
+        title_words = post.title.lower().split()
+        #print title_words
+        for keyword in keywords:
+            if keyword in title_words:
+                #print post.title
+                if post.id not in relevant_post_IDs:
+                    relevant_post_IDs.append(post.id)
+    return relevant_post_IDs
+
+def post_comment(post_ID, message):
+    reddit = praw.Reddit('bot1')
+    subreddit = reddit.subreddit('NJTech')
+    submission = reddit.submission(id=post_ID)
+    submission.reply(message)
+
+keywords = ["cs288", "288", "sohn"]
 text = get_comment_texts_from_posts(cs288_post_IDs)
 markov_dict = create_markov_dictionary(text)
-generate_output(markov_dict, 6, 10)
+message = generate_output(markov_dict, 6, 10)
+post_ids = get_relevant_post_IDs(keywords, 50)
+print message
+print post_ids[0]
+post_comment(post_ids[0], message)
 
 
