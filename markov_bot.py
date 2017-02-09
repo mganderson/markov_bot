@@ -2,7 +2,27 @@ import praw
 import random
 import sys
 
-cs288_post_IDs = ["5moshs", "5k08py", "3r8xe8", "3hzzu5", "5omhuq", "5q72iu", "5ouemn", "4d4xh5", "5mrdhq", "5oww9h", "5iq7i5", "46zd27", "4a05xw"]
+CORPUS_POST_IDS = ["5moshs", "5k08py", "3r8xe8", "3hzzu5", "5omhuq", "5q72iu", "5ouemn", "4d4xh5", "5mrdhq", "5oww9h", "5iq7i5", "46zd27", "4a05xw"]
+TARGET_POST_KEYWORDS = ["cs288", "288", "sohn"]
+SUBREDDIT = "NJTech"
+
+def main():
+    text = get_comment_texts_from_posts(CORPUS_POST_IDS)
+    markov_dict = create_markov_dictionary(text)
+    reddit = praw.Reddit('bot1')
+    subreddit = reddit.subreddit(SUBREDDIT)
+    # create list of existing relevant posts and do not (re)post on them
+    post_ids_to_disregard = get_relevant_post_ids(subreddit, TARGET_POST_KEYWORDS, 1000)
+    for submission in subreddit.stream.submissions():
+        #process submission 
+        lowercase_title = submission.title.lower()
+        for keyword in TARGET_POST_KEYWORDS:
+            if keyword in lowercase_title and submission.id not in post_ids_to_disregard:
+                message = generate_output(markov_dict, 6, 10)
+                post_comment(submission, message)
+                print "Posted comment to \"", submission.title, "\" with message:", message
+                print "-----------------------"
+                break
 
 def get_comment_texts_from_posts(post_IDs):
     reddit = praw.Reddit('bot1')
@@ -22,11 +42,9 @@ def get_comment_texts_from_posts(post_IDs):
     return text
 
 def create_markov_dictionary(text):
-    #parse input string and add individual words to token_list[]
+    #split input string and add individual words to token_list[]
     token_list = []
     token_list = text.split()
-    #print token_list
-
     #create dictionary with values corresponding to words that follow keys in corpus
     markov_dict = {}
     current_index = 0
@@ -80,11 +98,8 @@ def generate_output(markov_dict, lower_bound, upper_bound):
         i -= 1
     return output_text
 
-def get_relevant_post_IDs(keywords, max_posts_to_search):
+def get_relevant_post_ids(subreddit, keywords, max_posts_to_search):
     relevant_post_IDs = []
-    reddit = praw.Reddit('bot1')
-    subreddit = reddit.subreddit('NJTech')
-
     for post in subreddit.hot(limit=max_posts_to_search):
         title_words = post.title.lower().split()
         #print title_words
@@ -95,19 +110,9 @@ def get_relevant_post_IDs(keywords, max_posts_to_search):
                     relevant_post_IDs.append(post.id)
     return relevant_post_IDs
 
-def post_comment(post_ID, message):
-    reddit = praw.Reddit('bot1')
-    subreddit = reddit.subreddit('NJTech')
-    submission = reddit.submission(id=post_ID)
+def post_comment(submission, message):
     submission.reply(message)
 
-keywords = ["cs288", "288", "sohn"]
-text = get_comment_texts_from_posts(cs288_post_IDs)
-markov_dict = create_markov_dictionary(text)
-message = generate_output(markov_dict, 6, 10)
-post_ids = get_relevant_post_IDs(keywords, 50)
-print message
-print post_ids[0]
-post_comment(post_ids[0], message)
+main()
 
 
