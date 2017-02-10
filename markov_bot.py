@@ -3,7 +3,7 @@ import random
 import sys
 
 CORPUS_POST_IDS = ["5moshs", "5k08py", "3r8xe8", "3hzzu5", "5omhuq", "5q72iu", "5ouemn", "4d4xh5", "5mrdhq", "5oww9h", "5iq7i5", "46zd27", "4a05xw"]
-TARGET_POST_KEYWORDS = ["cs288", "288", "sohn"]
+TARGET_POST_KEYWORDS = ["cs288", "288", "sohn", "free talk"]
 SUBREDDIT = "NJTech"
 
 def main():
@@ -19,6 +19,9 @@ def main():
         for keyword in TARGET_POST_KEYWORDS:
             if keyword in lowercase_title and submission.id not in post_ids_to_disregard:
                 message = generate_output(markov_dict, 6, 10)
+                # If the post title makes reference to the fact that it's Friday, add a stanza of Rebecca Black to message
+                if "friday" in lowercase_title:
+                    message += "iT's FrIdAy fRiDaY\n\nGOTTA GET DOWN ON FRIDAY"
                 post_comment(submission, message)
                 print "Posted comment to \"", submission.title, "\" with message:", message
                 print "-----------------------"
