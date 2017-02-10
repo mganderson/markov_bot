@@ -1,3 +1,5 @@
+# This file is not used and should be deleted / code included/refined in markov_bot.py
+
 #!/usr/bin/python
 
 import random
