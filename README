@@ -1,5 +1,0 @@
-Markov Bot
-A Reddit bot that generates markov-chain output using the text from a given list of Reddit threads as its corpus and posts to new Reddit posts with titles that match a given set of keywords.
-
-Uses PRAW (https://praw.readthedocs.io/en/latest/)
-Must edit praw.ini to include credentials to run
