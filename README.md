@@ -4,8 +4,11 @@ A bot that posts Markov chain comments to Reddit posts with titles/bodies matchi
 In order to use, you must enter your Reddit bot account info in TEMPLATEpraw.ini 
 
 > client_id=YOUR_CLIENT_ID_GOES_HERE
+
 > password=YOUR_PASSWORD_GOES_HERE
+
 > username=YOUR_USERNAME_GOES_HERE
+
 > user_agent=YOUR_USERAGENT_GOES_HERE
 
 Once done, rename the file praw.ini (it must be in the same directory as markov_bot.py).
