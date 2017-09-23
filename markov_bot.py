@@ -2,21 +2,61 @@ import praw
 import random
 import sys
 
-CORPUS_POST_IDS = ["5moshs", "5k08py", "3r8xe8", "3hzzu5", "5omhuq", "5q72iu", "5ouemn", "4d4xh5", "5mrdhq", "5oww9h", "5iq7i5", "46zd27", "4a05xw"]
-TARGET_POST_KEYWORDS = ["cs288", "288", "sohn", "free talk"]
-SUBREDDIT = "NJTech"
+DEFAULT_CORPUS_POST_IDS = ["5moshs", "5k08py", "3r8xe8", "3hzzu5", "5omhuq", "5q72iu", "5ouemn", "4d4xh5", "5mrdhq", "5oww9h", "5iq7i5", "46zd27", "4a05xw"]
+DEFAULT_TARGET_POST_KEYWORDS = ["cs288", "288", "sohn", "free talk"]
+DEFAULT_SUBREDDIT = "bottesting"
 
 def main():
-    text = get_comment_texts_from_posts(CORPUS_POST_IDS)
+
+    # Post IDs from the command line. The text of these posts will be used
+    # to make up the bot's corpus
+    corpus_post_ids = []
+    print "Enter the IDs for the Reddit posts that will make up the bot's corpus."
+    print "(You may also enter nothing to use a default list of post IDs.)"
+    while True:
+        post_id = raw_input("Enter a post ID (or enter nothing to finish):")
+        if not post_id:
+            break
+        corpus_post_ids += post_id
+    if not corpus_post_ids:
+        corpus_post_ids = DEFAULT_CORPUS_POST_IDS
+
+    # Get post keywords from the command line
+    target_post_keywords = []
+    print "Enter keywords for Reddit posts that you wish the bot to search for and post in."
+    print "(You may also enter nothing to use a default list of post IDs.)"
+    while True:
+        keyword = raw_input("Enter a keyword (or enter nothing to finish):")
+        if not keyword:
+            break
+        target_post_keywords += keyword
+    if not target_post_keywords:
+        target_post_keywords = DEFAULT_TARGET_POST_KEYWORDS
+
+    # Get subreddit from the command line
+    print "Enter the subreddit that the bot should post in:"
+    print "(You may also enter nothing to use the default subreddit.)"
+    subreddit = raw_input("Enter a subreddit name *without* r/ (or enter nothing to finish):")
+    if not subreddit:
+        subreddit = DEFAULT_SUBREDDIT
+
+
+    # Retrieve post text and generate Markov dictionary
+    text = get_comment_texts_from_posts(corpus_post_ids)
     markov_dict = create_markov_dictionary(text)
+
+    print "Starting bot using these parameters:"
+    print "Corpus post IDs: " + corpus_post_ids
+    print "Target post keywords: " + target_post_keywords
+    print "Subreddit: " + subreddit
     reddit = praw.Reddit('bot1')
-    subreddit = reddit.subreddit(SUBREDDIT)
+
     # create list of existing relevant posts and do not (re)post on them
-    post_ids_to_disregard = get_relevant_post_ids(subreddit, TARGET_POST_KEYWORDS, 1000)
+    post_ids_to_disregard = get_relevant_post_ids(subreddit, target_post_keywords, 1000)
     for submission in subreddit.stream.submissions():
         #process submission 
         lowercase_title = submission.title.lower()
-        for keyword in TARGET_POST_KEYWORDS:
+        for keyword in target_post_keywords:
             if keyword in lowercase_title and submission.id not in post_ids_to_disregard:
                 message = generate_output(markov_dict, 6, 10)
                 post_comment(submission, message)
@@ -50,7 +90,7 @@ def create_markov_dictionary(text):
     current_index = 0
     next_token = ""
     for token in token_list:
-        if token == "[deleted].":	#skips [deleted] tokens
+        if token == "[deleted].":   #skips [deleted] tokens
             continue
         if current_index < len(token_list) - 1:
             next_token = token_list[current_index + 1]
@@ -113,6 +153,7 @@ def get_relevant_post_ids(subreddit, keywords, max_posts_to_search):
 def post_comment(submission, message):
     submission.reply(message)
 
-main()
+if __name__ == "__main__":
+    main()
 
 
