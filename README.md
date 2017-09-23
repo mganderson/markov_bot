@@ -13,5 +13,7 @@ In order to use, you must enter your Reddit bot account info in TEMPLATEpraw.ini
 
 Once done, rename the file praw.ini (it must be in the same directory as markov_bot.py).
 
+Optionally, you may insert default values for corpus post IDs, search keywords, and subreddit in defaults.json.  defaults.son *must* be in the same directory as markov_bot.py.
+
 Uses PRAW - check it out [here](https://praw.readthedocs.io/en/latest/).
 

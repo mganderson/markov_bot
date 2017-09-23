@@ -1,14 +1,28 @@
 import datetime
+import json
 import praw
 import random
 import sys
 import time
 
-DEFAULT_CORPUS_POST_IDS = ["5moshs", "5k08py", "3r8xe8", "3hzzu5", "5omhuq", "5q72iu", "5ouemn", "4d4xh5", "5mrdhq", "5oww9h", "5iq7i5", "46zd27", "4a05xw"]
-DEFAULT_TARGET_POST_KEYWORDS = ["cs288", "288", "sohn", "free talk"]
-DEFAULT_SUBREDDIT = "bottesting"
+if __name__ == "__main__":
+    main()
 
 def main():
+
+    # To contain the bot's default corpus post ids, post keywords, and subreddit.
+    defaults = {}
+
+    # Read and parse defaults.json to populate defaults dictionary
+    try:
+        with open("defaults.json", "r") as file:
+            defaults = json.load(file)
+    except Exception as e: 
+        print "Exception: {}".format(e)
+        print "Unable to load defaults.json. Check if it's in the same directory as markov_bot.py."
+        print "Exiting..."
+        sys.exit(1)
+
     # Check if the user wants to generate the bot's corpus from Reddit posts
     # or a text file
     print "Do you want to use a text file or existing Reddit posts as the bot's corpus?"
@@ -47,9 +61,10 @@ def main():
             post_id = raw_input("Enter a post ID (or enter nothing to finish): ")
             if not post_id:
                 break
-            corpus_post_ids += post_id
+            corpus_post_ids.append(post_id)
         if not corpus_post_ids:
-            corpus_post_ids = DEFAULT_CORPUS_POST_IDS
+            # corpus_post_ids = DEFAULT_CORPUS_POST_IDS
+            corpus_post_ids = defaults["corpus_post_ids"]
 
     # Get post keywords from the command line
     target_post_keywords = []
@@ -61,14 +76,21 @@ def main():
             break
         target_post_keywords.append(keyword)
     if not target_post_keywords:
-        target_post_keywords = DEFAULT_TARGET_POST_KEYWORDS
+        # target_post_keywords = DEFAULT_TARGET_POST_KEYWORDS
+        target_post_keywords = defaults["target_post_keywords"]
 
     # Get subreddit from the command line
     print "Enter the subreddit that the bot should post in:"
     print "(You may also enter nothing to use the default subreddit.)"
     subreddit_name = raw_input("Enter a subreddit name *without* r/ (or enter nothing to finish): ")
     if not subreddit_name:
-        subreddit_name = DEFAULT_SUBREDDIT
+        # subreddit_name = DEFAULT_SUBREDDIT
+        subreddit_name = defaults["subreddit"]
+
+    print "Starting bot using these parameters:"
+    print "Corpus post IDs: " + str(corpus_post_ids)
+    print "Target post keywords: " + str(target_post_keywords)
+    print "Subreddit: " + str(subreddit_name)
 
     # If generating corpus from posts, retrieve post text
     if not file_as_corpus:
@@ -82,34 +104,40 @@ def main():
     # Generate markov dictionar
     markov_dict = create_markov_dictionary(text)
 
-    print "Starting bot using these parameters:"
-    print "Corpus post IDs: " + str(corpus_post_ids)
-    print "Target post keywords: " + str(target_post_keywords)
-    print "Subreddit: " + str(subreddit_name)
-
     reddit = praw.Reddit('bot1')
     subreddit = reddit.subreddit(subreddit_name)
 
     # create list of existing relevant posts and do not (re)post on them
     post_ids_to_disregard = get_relevant_post_ids(subreddit, target_post_keywords, 1000)
-    for submission in subreddit.stream.submissions():
-        #process submission 
-        lowercase_title = submission.title.lower()
-        for keyword in target_post_keywords:
-            if keyword in lowercase_title and submission.id not in post_ids_to_disregard:
-                message = generate_output(markov_dict, 6, 10)
-                try:
-                    post_comment(submission, message)
-                    print "-----------------------"
-                    print "{}: Posted comment to post \"{}\":".format(
-                        datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), submission.title)
-                    print message
-                except Exception as e:
-                    print "{}: Exception trying to post comment: {}".format(
-                        datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), e)
-                print "Sleeping for 3 minutes before resuming ..."
-                time.sleep(180)
-                break
+
+    while True:
+        try:
+            for submission in subreddit.stream.submissions():
+                #process submission 
+                lowercase_title = submission.title.lower()
+                for keyword in target_post_keywords:
+                    if keyword in lowercase_title and submission.id not in post_ids_to_disregard:
+                        message = generate_output(markov_dict, 6, 10)
+                        try:
+                            post_comment(submission, message)
+                            print "-----------------------"
+                            print "{}: Posted comment to post \"{}\":".format(
+                                datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), submission.title)
+                            print message
+                        # "You are doing that too much! Try again in X minutes"
+                        except Exception as e:
+                            print "{}: Exception trying to post comment: {}".format(
+                                datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), e)
+                        print "Sleeping for 3 minutes before resuming ..."
+                        time.sleep(180)
+                        break
+        # Log exceptions to console, but keep running
+        except Exception as e:
+            print "-----------------------"
+            print "{}: Exception: {}".format(
+                datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), e)
+            print "Sleeping for 3 minutes before resuming ..."
+            time.sleep(180)
 
                     
 
@@ -201,8 +229,4 @@ def get_relevant_post_ids(subreddit, keywords, max_posts_to_search):
 
 def post_comment(submission, message):
     submission.reply(message)
-
-if __name__ == "__main__":
-    main()
-
 
