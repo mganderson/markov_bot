@@ -47,6 +47,12 @@ sftp-config.json
 
 # Config stuff #
 ################
-
 praw.ini
+
+# Text files for testing #
+##########################
+call_of_the_wild.txt
+dracula.txt
+jane_eyre.txt
+
 
