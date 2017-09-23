@@ -1,3 +1,4 @@
+import datetime
 import praw
 import random
 import sys
@@ -65,7 +66,7 @@ def main():
     # Get subreddit from the command line
     print "Enter the subreddit that the bot should post in:"
     print "(You may also enter nothing to use the default subreddit.)"
-    subreddit_name = raw_input("Enter a subreddit name *without* r/ (or enter nothing to finish):")
+    subreddit_name = raw_input("Enter a subreddit name *without* r/ (or enter nothing to finish): ")
     if not subreddit_name:
         subreddit_name = DEFAULT_SUBREDDIT
 
@@ -100,10 +101,12 @@ def main():
                 try:
                     post_comment(submission, message)
                     print "-----------------------"
-                    print "Posted comment to \"", submission.title, "\" with message:", message
-                    print "-----------------------"
+                    print "{}: Posted comment to post \"{}\":".format(
+                        datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), submission.title)
+                    print message
                 except Exception as e:
-                    print "Exception trying to post comment: {}".format(e)
+                    print "{}: Exception trying to post comment: {}".format(
+                        datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), e)
                 print "Sleeping for 3 minutes before resuming ..."
                 time.sleep(180)
                 break
