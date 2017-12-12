@@ -5,11 +5,7 @@ import random
 import sys
 import time
 
-if __name__ == "__main__":
-    main()
-
 def main():
-
     # To contain the bot's default corpus post ids, post keywords, and subreddit.
     defaults = {}
 
@@ -229,4 +225,8 @@ def get_relevant_post_ids(subreddit, keywords, max_posts_to_search):
 
 def post_comment(submission, message):
     submission.reply(message)
+
+if __name__ == "__main__":
+    main()
+
 
