@@ -4,7 +4,7 @@ A bot that posts Markov chain comments to Reddit posts with titles/bodies matchi
 How to use
 -------
 
-First, create a Reddit app at [https://www.reddit.com/prefs/apps/](https://www.reddit.com/prefs/apps/).
+First, create a Reddit app at [https://www.reddit.com/prefs/apps/](https://www.reddit.com/prefs/apps/). You must create the app with the same account that you want your bot to post under - e.g., if you want your bot to post as mega_bot_XL, create the app as mega_bot_XL. When creating the app, specify that the account will be a script ("Script for personal use. Will only have access to the developers accounts").
 
 Once done, enter your Reddit app's client_id and client_secret in TEMPLATEpraw.ini:
 
@@ -12,13 +12,13 @@ Once done, enter your Reddit app's client_id and client_secret in TEMPLATEpraw.i
 
 > client_secret=YOUR_CLIENT_SECRET_GOES_HERE
 
-Then, enter your account info for the user account you want the bot to post as in TEMPLATEpraw.ini:
+Then, enter your account info for the user account you want the bot to post as in TEMPLATEpraw.ini.  This must be the same account as the owner of the app:
 
 > password=YOUR_PASSWORD_GOES_HERE
 
 > username=YOUR_USERNAME_GOES_HERE
 
-Pick a unique a descriptive string for user_agent:
+Pick a unique string for the user_agent.  It can be arbitrary or descriptive - e.g. Mega Bot XL v1:
 
 > user_agent=YOUR_USERAGENT_GOES_HERE
 
@@ -32,7 +32,7 @@ You can then follow the prompts to enter custom parameters, press enter repeated
 
 After completing the command prompt dialogue, the bot will begin monitoring the stream of posts to the subreddit you specified and will comment on posts matching the keywords either provided through the prompts or in defaults.json.
 
-This project uses PRAW - check it out [here](https://praw.readthedocs.io/en/latest/).  Install it with pip.
+This project uses PRAW - check it out [here](https://praw.readthedocs.io/en/latest/).
 
 Thoughts/comments? Reach me at mga25@njit.edu
 

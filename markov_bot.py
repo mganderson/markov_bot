@@ -84,9 +84,12 @@ def main():
         subreddit_name = defaults["subreddit"]
 
     print "Starting bot using these parameters:"
-    print "Corpus post IDs: " + str(corpus_post_ids)
-    print "Target post keywords: " + str(target_post_keywords)
-    print "Subreddit: " + str(subreddit_name)
+    if file_as_corpus:
+        print "Corpus filepath: {}".format(str(filepath))
+    else:
+        print "Corpus post IDs: {}".format(str(corpus_post_ids))        
+    print "Target post keywords: {}".format(str(target_post_keywords))
+    print "Subreddit: {}".format(str(subreddit_name))
 
     # If generating corpus from posts, retrieve post text
     if not file_as_corpus:
